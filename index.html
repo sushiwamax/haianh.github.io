@@ -79,6 +79,7 @@
             border-left: 5px solid var(--btn-primary);
             border-radius: 8px;
             transition: background 0.3s ease;
+            color: var(--text-color); /* Đảm bảo text trong result trắng */
         }
 
         .error {
@@ -98,6 +99,7 @@
             padding: 10px;
             margin-bottom: 10px;
             transition: background 0.3s ease;
+            color: var(--text-color); /* Đảm bảo text trong history trắng */
         }
 
         .history-item:hover {
@@ -111,7 +113,7 @@
         .btn {
             border-radius: 20px;
             transition: background 0.3s ease;
-            color: #ffffff !important; /* Đảm bảo text button luôn trắng */
+            color: #ffffff !important; /* Text button luôn trắng */
         }
 
         .btn-primary { background-color: var(--btn-primary); }
@@ -130,6 +132,11 @@
         .form-control::placeholder {
             color: var(--text-color);
             opacity: 0.6;
+        }
+
+        /* Labels và tất cả text elements */
+        .form-label, h4, h5, small, b, i {
+            color: var(--text-color); /* Force tất cả text elements trắng trong dark mode */
         }
 
         .theme-toggle {
