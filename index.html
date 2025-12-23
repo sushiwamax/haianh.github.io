@@ -81,9 +81,41 @@
     </div>
 
     <div id="result" class="result" style="display:none;"></div>
+    div class="text-center mt-3">
+    <button onclick="speakText()" class="btn btn-success">
+        <i class="fas fa-volume-up"></i> Nghe kết quả
+    </button>
 </div>
 
 <script>
+    function speakText() {
+    const resultDiv = document.getElementById("result");
+    const text = resultDiv.innerText.replace("Kết quả:", "").trim();
+
+    if (!text) {
+        alert("Chưa có nội dung để đọc");
+        return;
+    }
+
+    const langMap = {
+        vi: "vi-VN",
+        en: "en-US",
+        fr: "fr-FR",
+        es: "es-ES",
+        de: "de-DE",
+        ru: "ru-RU"
+    };
+
+    const targetLang = document.getElementById("target_lang").value;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = langMap[targetLang] || "en-US";
+    utterance.rate = 1;
+    utterance.pitch = 1;
+
+    speechSynthesis.cancel(); // tránh chồng tiếng
+    speechSynthesis.speak(utterance);
+}
 const API_URL = "https://haichim25-nllb-translator-api.hf.space/api/translate";
 
 async function translateText() {
@@ -124,5 +156,6 @@ async function translateText() {
 
 </body>
 </html>
+
 
 
