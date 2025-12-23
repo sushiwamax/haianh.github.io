@@ -1,127 +1,134 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NLLB Translator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLLB Translator</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Bootstrap + FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-<style>
-body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.container {
-    background: white;
-    border-radius: 15px;
-    padding: 40px;
-    max-width: 650px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-.result {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-left: 5px solid #667eea;
-    border-radius: 8px;
-}
-.error {
-    color: red;
-    font-weight: bold;
-}
-.history-item {
-    background: #fff;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-left: 4px solid #764ba2;
-    font-size: 14px;
-}
-.history-item small {
-    color: #666;
-}
-</style>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            border-radius: 8px;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .history-box {
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .history-item {
+            background: #f1f3f5;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
+    <div class="row">
 
-<h2 class="text-center mb-4">
-    <i class="fas fa-language"></i> NLLB Translator
-</h2>
+        <!-- ================= LEFT: TRANSLATOR ================= -->
+        <div class="col-md-7">
 
-<!-- INPUT -->
-<div class="mb-3">
-    <label class="form-label">Văn bản cần dịch</label>
-    <textarea id="text" class="form-control" rows="4"></textarea>
-</div>
+            <h4 class="text-center mb-4">
+                <i class="fas fa-language"></i> NLLB Translator
+            </h4>
 
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Ngôn ngữ nguồn</label>
-        <select id="source_lang" class="form-select">
-            <option value="en">English</option>
-            <option value="vi">Vietnamese</option>
-            <option value="fr">French</option>
-            <option value="es">Spanish</option>
-            <option value="de">German</option>
-            <option value="ru">Russian</option>
-        </select>
+            <div class="mb-3">
+                <label class="form-label">Văn bản cần dịch</label>
+                <textarea id="text" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Ngôn ngữ nguồn</label>
+                    <select id="source_lang" class="form-select">
+                        <option value="en">English</option>
+                        <option value="vi">Vietnamese</option>
+                        <option value="fr">French</option>
+                        <option value="es">Spanish</option>
+                        <option value="de">German</option>
+                        <option value="ru">Russian</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Ngôn ngữ đích</label>
+                    <select id="target_lang" class="form-select">
+                        <option value="vi">Vietnamese</option>
+                        <option value="en">English</option>
+                        <option value="fr">French</option>
+                        <option value="es">Spanish</option>
+                        <option value="de">German</option>
+                        <option value="ru">Russian</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="text-center mb-3">
+                <button onclick="translateText()" class="btn btn-primary">
+                    <i class="fas fa-exchange-alt"></i> Dịch
+                </button>
+                <button onclick="speakText()" class="btn btn-success ms-2">
+                    <i class="fas fa-volume-up"></i> Nghe
+                </button>
+            </div>
+
+            <div id="result" class="result" style="display:none;"></div>
+
+        </div>
+
+        <!-- ================= RIGHT: HISTORY ================= -->
+        <div class="col-md-5">
+
+            <h5 class="mb-3">
+                <i class="fas fa-history"></i> Lịch sử tra cứu
+            </h5>
+
+            <div id="history" class="history-box"></div>
+
+            <div class="text-end mt-2">
+                <button class="btn btn-sm btn-danger" onclick="clearHistory()">
+                    <i class="fas fa-trash"></i> Xóa lịch sử
+                </button>
+            </div>
+
+        </div>
+
     </div>
-
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Ngôn ngữ đích</label>
-        <select id="target_lang" class="form-select">
-            <option value="vi">Vietnamese</option>
-            <option value="en">English</option>
-            <option value="fr">French</option>
-            <option value="es">Spanish</option>
-            <option value="de">German</option>
-            <option value="ru">Russian</option>
-        </select>
-    </div>
-</div>
-
-<!-- BUTTON -->
-<div class="text-center">
-    <button onclick="translateText()" class="btn btn-primary">
-        <i class="fas fa-exchange-alt"></i> Dịch
-    </button>
-    <button onclick="speakText()" class="btn btn-success ms-2">
-        <i class="fas fa-volume-up"></i> Nghe
-    </button>
-</div>
-
-<!-- RESULT -->
-<div id="result" class="result" style="display:none;"></div>
-
-<hr>
-
-<!-- HISTORY -->
-<h5 class="mt-3">
-    <i class="fas fa-history"></i> Lịch sử tra cứu
-</h5>
-
-<div id="history" class="mt-3"></div>
-
-<div class="text-end">
-    <button class="btn btn-sm btn-danger" onclick="clearHistory()">
-        <i class="fas fa-trash"></i> Xóa lịch sử
-    </button>
-</div>
-
 </div>
 
 <script>
 const API_URL = "https://haichim25-nllb-translator-api.hf.space/api/translate";
 
-/* ================== TRANSLATE ================== */
+// ================= TRANSLATE =================
 async function translateText() {
     const text = document.getElementById("text").value;
     const source_lang = document.getElementById("source_lang").value;
@@ -147,84 +154,61 @@ async function translateText() {
 
         if (data.translated) {
             resultDiv.innerHTML = `<b>Kết quả:</b><br>${data.translated}`;
-            saveHistory(text, source_lang, target_lang, data.translated);
+            saveHistory(text, data.translated, source_lang, target_lang);
             loadHistory();
         } else {
             resultDiv.innerHTML = `<span class="error">${data.error}</span>`;
         }
+
     } catch {
         resultDiv.innerHTML = `<span class="error">Lỗi kết nối API</span>`;
     }
 }
 
-/* ================== TEXT TO SPEECH ================== */
+// ================= SPEAK =================
 function speakText() {
     const resultDiv = document.getElementById("result");
     const text = resultDiv.innerText.replace("Kết quả:", "").trim();
-
-    if (!text) {
-        alert("Chưa có nội dung để đọc");
-        return;
-    }
+    if (!text) return alert("Chưa có nội dung");
 
     const langMap = {
-        vi: "vi-VN",
-        en: "en-US",
-        fr: "fr-FR",
-        es: "es-ES",
-        de: "de-DE",
-        ru: "ru-RU"
+        vi: "vi-VN", en: "en-US", fr: "fr-FR",
+        es: "es-ES", de: "de-DE", ru: "ru-RU"
     };
 
-    const targetLang = document.getElementById("target_lang").value;
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = langMap[targetLang] || "en-US";
-
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = langMap[target_lang.value] || "en-US";
     speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
+    speechSynthesis.speak(utter);
 }
 
-/* ================== HISTORY ================== */
-function saveHistory(text, src, tgt, translated) {
-    const history = JSON.parse(localStorage.getItem("translate_history")) || [];
-
-    history.unshift({
-        text, src, tgt, translated,
-        time: new Date().toLocaleString()
-    });
-
-    localStorage.setItem("translate_history", JSON.stringify(history.slice(0, 10)));
+// ================= HISTORY =================
+function saveHistory(src, tgt, sLang, tLang) {
+    const history = JSON.parse(localStorage.getItem("history") || "[]");
+    history.unshift({ src, tgt, sLang, tLang, time: new Date().toLocaleString() });
+    localStorage.setItem("history", JSON.stringify(history.slice(0, 20)));
 }
 
 function loadHistory() {
-    const historyDiv = document.getElementById("history");
-    const history = JSON.parse(localStorage.getItem("translate_history")) || [];
+    const history = JSON.parse(localStorage.getItem("history") || "[]");
+    const box = document.getElementById("history");
+    box.innerHTML = "";
 
-    historyDiv.innerHTML = "";
-
-    if (history.length === 0) {
-        historyDiv.innerHTML = "<i>Chưa có lịch sử</i>";
-        return;
-    }
-
-    history.forEach(item => {
-        historyDiv.innerHTML += `
+    history.forEach(h => {
+        box.innerHTML += `
             <div class="history-item">
-                <small>${item.time}</small><br>
-                <b>${item.src} → ${item.tgt}</b><br>
-                <i>${item.text}</i><br>
-                <b>→ ${item.translated}</b>
+                <b>${h.sLang} → ${h.tLang}</b><br>
+                <small>${h.time}</small><br>
+                <i>${h.src}</i><br>
+                <b>${h.tgt}</b>
             </div>
         `;
     });
 }
 
 function clearHistory() {
-    if (confirm("Xóa toàn bộ lịch sử?")) {
-        localStorage.removeItem("translate_history");
-        loadHistory();
-    }
+    localStorage.removeItem("history");
+    loadHistory();
 }
 
 loadHistory();
