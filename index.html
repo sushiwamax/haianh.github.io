@@ -5,126 +5,196 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NLLB Translator</title>
 
-    <!-- Bootstrap + FontAwesome -->
+    <!-- Bootstrap + FontAwesome + Animate.css -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%), url('https://source.unsplash.com/featured/?language,translation') no-repeat center center fixed;
+            background-size: cover;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: 'Poppins', sans-serif; /* Thêm font vui mắt */
         }
         .container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95); /* Mờ để thấy ảnh nền */
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 1100px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px); /* Hiệu ứng kính */
+        }
+        .card {
+            border: none;
             border-radius: 15px;
-            padding: 30px;
-            max-width: 1000px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .result {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f8f9fa;
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
             border-left: 5px solid #667eea;
-            border-radius: 8px;
+            border-radius: 12px;
+            position: relative;
+        }
+        .result::before {
+            content: "🎉"; /* Sticker thành công */
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
         }
         .error {
-            color: red;
+            color: #dc3545;
             font-weight: bold;
         }
         .history-box {
-            max-height: 420px;
+            max-height: 450px;
             overflow-y: auto;
-            padding-right: 5px;
+            padding-right: 10px;
         }
         .history-item {
-            background: #f1f3f5;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-            font-size: 14px;
+            background: linear-gradient(45deg, #f1f3f5, #e3f2fd);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .history-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        .lang-icon {
+            margin-right: 8px;
+        }
+        .badge {
+            font-size: 0.8em;
+        }
+        .btn {
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+        }
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .history-box {
+                max-height: 300px;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container animate__animated animate__fadeIn">
     <div class="row">
 
         <!-- ================= LEFT: TRANSLATOR ================= -->
         <div class="col-md-7">
+            <div class="card p-4 mb-4">
+                <h4 class="text-center mb-4">
+                    <i class="fas fa-language text-primary"></i> NLLB Translator
+                    <span class="badge bg-success ms-2">AI-Powered</span> <!-- Badge sticker -->
+                </h4>
 
-            <h4 class="text-center mb-4">
-                <i class="fas fa-language"></i> NLLB Translator
-            </h4>
-
-            <div class="mb-3">
-                <label class="form-label">Văn bản cần dịch</label>
-                <textarea id="text" class="form-control" rows="4"></textarea>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Ngôn ngữ nguồn</label>
-                    <select id="source_lang" class="form-select">
-                        <option value="en">English</option>
-                        <option value="vi">Vietnamese</option>
-                        <option value="fr">French</option>
-                        <option value="es">Spanish</option>
-                        <option value="de">German</option>
-                        <option value="ru">Russian</option>
-                    </select>
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-edit lang-icon"></i> Văn bản cần dịch</label>
+                    <textarea id="text" class="form-control" rows="4" placeholder="Nhập văn bản ở đây..."></textarea>
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Ngôn ngữ đích</label>
-                    <select id="target_lang" class="form-select">
-                        <option value="vi">Vietnamese</option>
-                        <option value="en">English</option>
-                        <option value="fr">French</option>
-                        <option value="es">Spanish</option>
-                        <option value="de">German</option>
-                        <option value="ru">Russian</option>
-                    </select>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><i class="fas fa-globe lang-icon"></i> Ngôn ngữ nguồn</label>
+                        <select id="source_lang" class="form-select">
+                            <option value="en">🇺🇸 English</option> <!-- Thêm cờ sticker -->
+                            <option value="vi">🇻🇳 Vietnamese</option>
+                            <option value="fr">🇫🇷 French</option>
+                            <option value="es">🇪🇸 Spanish</option>
+                            <option value="de">🇩🇪 German</option>
+                            <option value="ru">🇷🇺 Russian</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><i class="fas fa-globe lang-icon"></i> Ngôn ngữ đích</label>
+                        <select id="target_lang" class="form-select">
+                            <option value="vi">🇻🇳 Vietnamese</option>
+                            <option value="en">🇺🇸 English</option>
+                            <option value="fr">🇫🇷 French</option>
+                            <option value="es">🇪🇸 Spanish</option>
+                            <option value="de">🇩🇪 German</option>
+                            <option value="ru">🇷🇺 Russian</option>
+                        </select>
+                    </div>
                 </div>
+
+                <div class="text-center mb-3">
+                    <button onclick="translateText()" class="btn btn-primary me-2" data-bs-toggle="tooltip" title="Dịch ngay!">
+                        <i class="fas fa-exchange-alt"></i> Dịch
+                    </button>
+                    <button onclick="speakText()" class="btn btn-success me-2" data-bs-toggle="tooltip" title="Nghe kết quả">
+                        <i class="fas fa-volume-up"></i> Nghe
+                    </button>
+                    <button onclick="swapLanguages()" class="btn btn-secondary" data-bs-toggle="tooltip" title="Đổi ngôn ngữ">
+                        <i class="fas fa-arrows-alt-h"></i> Swap
+                    </button>
+                </div>
+
+                <div id="result" class="result animate__animated animate__fadeIn" style="display:none;"></div>
             </div>
-
-            <div class="text-center mb-3">
-                <button onclick="translateText()" class="btn btn-primary">
-                    <i class="fas fa-exchange-alt"></i> Dịch
-                </button>
-                <button onclick="speakText()" class="btn btn-success ms-2">
-                    <i class="fas fa-volume-up"></i> Nghe
-                </button>
-            </div>
-
-            <div id="result" class="result" style="display:none;"></div>
-
         </div>
 
         <!-- ================= RIGHT: HISTORY ================= -->
         <div class="col-md-5">
+            <div class="card p-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-history text-info"></i> Lịch sử tra cứu
+                    <span class="badge bg-warning text-dark">Mới</span> <!-- Badge sticker -->
+                </h5>
 
-            <h5 class="mb-3">
-                <i class="fas fa-history"></i> Lịch sử tra cứu
-            </h5>
+                <div id="history" class="history-box"></div>
 
-            <div id="history" class="history-box"></div>
-
-            <div class="text-end mt-2">
-                <button class="btn btn-sm btn-danger" onclick="clearHistory()">
-                    <i class="fas fa-trash"></i> Xóa lịch sử
-                </button>
+                <div class="text-end mt-3">
+                    <button class="btn btn-sm btn-danger" onclick="clearHistory()">
+                        <i class="fas fa-trash"></i> Xóa lịch sử
+                    </button>
+                </div>
             </div>
-
         </div>
 
     </div>
 </div>
 
+<!-- Modal cho lịch sử chi tiết (tùy chọn, để bắt mắt hơn) -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-eye"></i> Chi tiết lịch sử</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <!-- Nội dung sẽ được điền bởi JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const API_URL = "https://haichim25-nllb-translator-api.hf.space/api/translate";
 
@@ -136,12 +206,12 @@ async function translateText() {
     const resultDiv = document.getElementById("result");
 
     if (!text) {
-        alert("Vui lòng nhập văn bản");
+        alert("Vui lòng nhập văn bản!");
         return;
     }
 
     resultDiv.style.display = "block";
-    resultDiv.innerHTML = "⏳ Đang dịch...";
+    resultDiv.innerHTML = '<div class="d-flex align-items-center"><div class="spinner-border text-primary me-2"></div> Đang dịch...</div>';
 
     try {
         const res = await fetch(API_URL, {
@@ -154,6 +224,7 @@ async function translateText() {
 
         if (data.translated) {
             resultDiv.innerHTML = `<b>Kết quả:</b><br>${data.translated}`;
+            resultDiv.classList.add('animate__bounceIn'); // Animation khi thành công
             saveHistory(text, data.translated, source_lang, target_lang);
             loadHistory();
         } else {
@@ -196,7 +267,7 @@ function loadHistory() {
 
     history.forEach(h => {
         box.innerHTML += `
-            <div class="history-item">
+            <div class="history-item" onclick="showHistoryDetail('${h.src}', '${h.tgt}', '${h.sLang}', '${h.tLang}', '${h.time}')">
                 <b>${h.sLang} → ${h.tLang}</b><br>
                 <small>${h.time}</small><br>
                 <i>${h.src}</i><br>
@@ -210,6 +281,32 @@ function clearHistory() {
     localStorage.removeItem("history");
     loadHistory();
 }
+
+// ================= ADDITIONAL: SWAP & MODAL =================
+function swapLanguages() {
+    const src = document.getElementById("source_lang");
+    const tgt = document.getElementById("target_lang");
+    [src.value, tgt.value] = [tgt.value, src.value];
+}
+
+function showHistoryDetail(src, tgt, sLang, tLang, time) {
+    const modal = new bootstrap.Modal(document.getElementById('historyModal'));
+    document.getElementById('modalContent').innerHTML = `
+        <p><strong>Nguồn:</strong> ${src}</p>
+        <p><strong>Dịch:</strong> ${tgt}</p>
+        <p><strong>Ngôn ngữ:</strong> ${sLang} → ${tLang}</p>
+        <p><strong>Thời gian:</strong> ${time}</p>
+    `;
+    modal.show();
+}
+
+// Init tooltips
+document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
 
 loadHistory();
 </script>
