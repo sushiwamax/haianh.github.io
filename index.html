@@ -79,7 +79,7 @@
             border-left: 5px solid var(--btn-primary);
             border-radius: 8px;
             transition: background 0.3s ease;
-            color: var(--text-color);
+            color: var(--text-color); /* Đảm bảo text trong result trắng */
         }
 
         .error {
@@ -99,7 +99,7 @@
             padding: 10px;
             margin-bottom: 10px;
             transition: background 0.3s ease;
-            color: var(--text-color);
+            color: var(--text-color); /* Đảm bảo text trong history trắng */
         }
 
         .history-item:hover {
@@ -113,12 +113,7 @@
         .btn {
             border-radius: 20px;
             transition: background 0.3s ease;
-            color: #ffffff !important;
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+            color: #ffffff !important; /* Text button luôn trắng */
         }
 
         .btn-primary { background-color: var(--btn-primary); }
@@ -126,6 +121,7 @@
         .btn-secondary { background-color: var(--btn-secondary); }
         .btn-danger { background-color: var(--btn-danger); }
 
+        /* Form elements: textarea, select */
         .form-control, .form-select {
             background: var(--form-bg);
             color: var(--form-text);
@@ -138,8 +134,9 @@
             opacity: 0.6;
         }
 
+        /* Labels và tất cả text elements */
         .form-label, h4, h5, small, b, i {
-            color: var(--text-color);
+            color: var(--text-color); /* Force tất cả text elements trắng trong dark mode */
         }
 
         .theme-toggle {
@@ -196,7 +193,7 @@
 
                 <div class="mb-3">
                     <label class="form-label"><i class="fas fa-edit lang-icon"></i> Văn bản cần dịch</label>
-                    <textarea id="text" class="form-control" rows="4" maxlength="1000"></textarea> <!-- Giới hạn length -->
+                    <textarea id="text" class="form-control" rows="4"></textarea>
                 </div>
 
                 <div class="row">
@@ -226,10 +223,10 @@
                 </div>
 
                 <div class="text-center mb-3">
-                    <button onclick="translateText()" class="btn btn-primary" id="translateBtn">
-                        <i class="fas fa-exchange"></i> Dịch
+                    <button onclick="translateText()" class="btn btn-primary">
+                        <i class="fas fa-exchange-alt"></i> Dịch
                     </button>
-                    <button onclick="speakText()" class="btn btn-success ms-2" id="speakBtn">
+                    <button onclick="speakText()" class="btn btn-success ms-2">
                         <i class="fas fa-volume-up"></i> Nghe
                     </button>
                     <button onclick="swapLanguages()" class="btn btn-secondary ms-2">
@@ -264,9 +261,6 @@
 <script>
 const API_URL = "https://haichim25-nllb-translator-api.hf.space/api/translate";
 
-// Cache cho translations (in-memory + localStorage)
-let translationCache = JSON.parse(localStorage.getItem('translationCache') || '{}');
-
 // ================= THEME TOGGLE =================
 function toggleTheme() {
     const body = document.body;
@@ -288,58 +282,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ================= TRANSLATE =================
 async function translateText() {
-    const text = document.getElementById("text").value.trim();
+    const text = document.getElementById("text").value;
     const source_lang = document.getElementById("source_lang").value;
     const target_lang = document.getElementById("target_lang").value;
     const resultDiv = document.getElementById("result");
-    const translateBtn = document.getElementById("translateBtn");
 
     if (!text) {
         alert("Vui lòng nhập văn bản");
         return;
     }
-    if (text.length > 1000) {
-        alert("Văn bản quá dài (tối đa 1000 ký tự)");
-        return;
-    }
 
-    // Check cache trước
-    const cacheKey = `${text}-${source_lang}-${target_lang}`;
-    if (translationCache[cacheKey]) {
-        resultDiv.style.display = "block";
-        resultDiv.innerHTML = `<b>Kết quả (từ cache):</b><br>${translationCache[cacheKey]}`;
-        resultDiv.classList.add('animate__bounceIn');
-        saveHistory(text, translationCache[cacheKey], source_lang, target_lang);
-        loadHistory();
-        return;
-    }
-
-    // Disable buttons và show loading
-    translateBtn.disabled = true;
-    translateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Dịch';
     resultDiv.style.display = "block";
-    resultDiv.innerHTML = '<div class="d-flex align-items-center"><div class="spinner-border text-primary me-2"></div> Đang dịch...</div>';
+    resultDiv.innerHTML = "⏳ Đang dịch...";
 
     try {
-        // Timeout 30s
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000);
-
         const res = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text, source_lang, target_lang }),
-            signal: controller.signal
+            body: JSON.stringify({ text, source_lang, target_lang })
         });
 
-        clearTimeout(timeoutId);
         const data = await res.json();
 
         if (data.translated) {
-            // Cache kết quả
-            translationCache[cacheKey] = data.translated;
-            localStorage.setItem('translationCache', JSON.stringify(translationCache));
-
             resultDiv.innerHTML = `<b>Kết quả:</b><br>${data.translated}`;
             resultDiv.classList.add('animate__bounceIn');
             saveHistory(text, data.translated, source_lang, target_lang);
@@ -348,23 +313,15 @@ async function translateText() {
             resultDiv.innerHTML = `<span class="error">${data.error}</span>`;
         }
 
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            resultDiv.innerHTML = `<span class="error">Dịch quá lâu, vui lòng thử lại.</span>`;
-        } else {
-            resultDiv.innerHTML = `<span class="error">Lỗi kết nối API</span>`;
-        }
-    } finally {
-        // Enable buttons
-        translateBtn.disabled = false;
-        translateBtn.innerHTML = '<i class="fas fa-exchange"></i> Dịch';
+    } catch {
+        resultDiv.innerHTML = `<span class="error">Lỗi kết nối API</span>`;
     }
 }
 
 // ================= SPEAK =================
 function speakText() {
     const resultDiv = document.getElementById("result");
-    const text = resultDiv.innerText.replace("Kết quả:", "").replace("(từ cache):", "").trim();
+    const text = resultDiv.innerText.replace("Kết quả:", "").trim();
     if (!text) return alert("Chưa có nội dung");
 
     const langMap = {
