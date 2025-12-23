@@ -23,6 +23,8 @@
             --btn-success: #28a745;
             --btn-secondary: #6c757d;
             --btn-danger: #dc3545;
+            --form-bg: #ffffff;
+            --form-text: #000000;
         }
 
         body.dark-mode {
@@ -37,6 +39,8 @@
             --btn-success: #198754;
             --btn-secondary: #5c636a;
             --btn-danger: #dc3545;
+            --form-bg: #495057;
+            --form-text: #ffffff;
         }
 
         body {
@@ -107,12 +111,26 @@
         .btn {
             border-radius: 20px;
             transition: background 0.3s ease;
+            color: #ffffff !important; /* Đảm bảo text button luôn trắng */
         }
 
         .btn-primary { background-color: var(--btn-primary); }
         .btn-success { background-color: var(--btn-success); }
         .btn-secondary { background-color: var(--btn-secondary); }
         .btn-danger { background-color: var(--btn-danger); }
+
+        /* Form elements: textarea, select */
+        .form-control, .form-select {
+            background: var(--form-bg);
+            color: var(--form-text);
+            border: 1px solid var(--history-bg);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-color);
+            opacity: 0.6;
+        }
 
         .theme-toggle {
             position: fixed;
@@ -129,6 +147,7 @@
             justify-content: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             transition: background 0.3s ease;
+            color: var(--text-color);
         }
 
         /* Mobile responsive */
@@ -152,7 +171,7 @@
 
 <!-- Theme Toggle Button -->
 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
-    <i class="fas fa-sun"></i> <!-- Icon mặc định: sáng -->
+    <i class="fas fa-sun"></i>
 </button>
 
 <div class="container">
