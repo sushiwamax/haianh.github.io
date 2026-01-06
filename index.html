@@ -267,28 +267,12 @@
 
 <script>
 const API_URL = "https://haichim25-nllb-translator-api.hf.space/api/translate";
-
-// ================= THEME TOGGLE =================
-function toggleTheme() {
-    const body = document.body;
-    const btn = document.getElementById('themeBtn');
-    body.classList.toggle('dark-mode');
-    const isDark = body.classList.contains('dark-mode');
-    btn.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-}
-
-// Load theme on page load
-document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        document.getElementById('themeBtn').innerHTML = '<i class="fas fa-moon"></i>';
-    }
-});
+let currentUtterance = null;
 
 // ================= TRANSLATE =================
 async function translateText() {
+    stopSpeak(); // dừng đọc nếu đang nói
+
     const text = document.getElementById("text").value;
     const source_lang = document.getElementById("source_lang").value;
     const target_lang = document.getElementById("target_lang").value;
@@ -313,13 +297,11 @@ async function translateText() {
 
         if (data.translated) {
             resultDiv.innerHTML = `<b>Kết quả:</b><br>${data.translated}`;
-            resultDiv.classList.add('animate__bounceIn');
             saveHistory(text, data.translated, source_lang, target_lang);
             loadHistory();
         } else {
             resultDiv.innerHTML = `<span class="error">${data.error}</span>`;
         }
-
     } catch {
         resultDiv.innerHTML = `<span class="error">Lỗi kết nối API</span>`;
     }
@@ -327,25 +309,48 @@ async function translateText() {
 
 // ================= SPEAK =================
 function speakText() {
+    stopSpeak(); // tránh chồng tiếng
+
     const resultDiv = document.getElementById("result");
     const text = resultDiv.innerText.replace("Kết quả:", "").trim();
-    if (!text) return alert("Chưa có nội dung");
+    if (!text) {
+        alert("Chưa có nội dung để đọc");
+        return;
+    }
+
+    const targetLang = document.getElementById("target_lang").value;
 
     const langMap = {
-        vi: "vi-VN", en: "en-US", fr: "fr-FR",
-        es: "es-ES", de: "de-DE", ru: "ru-RU"
+        vi: "vi-VN",
+        en: "en-US",
+        fr: "fr-FR",
+        es: "es-ES",
+        de: "de-DE",
+        ru: "ru-RU"
     };
 
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = langMap[target_lang.value] || "en-US";
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utter);
+    currentUtterance = new SpeechSynthesisUtterance(text);
+    currentUtterance.lang = langMap[targetLang] || "en-US";
+    currentUtterance.rate = 1;
+    currentUtterance.pitch = 1;
+
+    speechSynthesis.speak(currentUtterance);
+}
+
+// ================= STOP SPEAK =================
+function stopSpeak() {
+    if (speechSynthesis.speaking || speechSynthesis.pending) {
+        speechSynthesis.cancel();
+    }
 }
 
 // ================= HISTORY =================
 function saveHistory(src, tgt, sLang, tLang) {
     const history = JSON.parse(localStorage.getItem("history") || "[]");
-    history.unshift({ src, tgt, sLang, tLang, time: new Date().toLocaleString() });
+    history.unshift({
+        src, tgt, sLang, tLang,
+        time: new Date().toLocaleString()
+    });
     localStorage.setItem("history", JSON.stringify(history.slice(0, 20)));
 }
 
@@ -371,7 +376,7 @@ function clearHistory() {
     loadHistory();
 }
 
-// ================= ADDITIONAL: SWAP =================
+// ================= SWAP =================
 function swapLanguages() {
     const src = document.getElementById("source_lang");
     const tgt = document.getElementById("target_lang");
@@ -380,7 +385,7 @@ function swapLanguages() {
 
 loadHistory();
 </script>
-
 </body>
 </html>
+
 
