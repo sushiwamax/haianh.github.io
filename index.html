@@ -287,7 +287,7 @@ async function translateText() {
     resultDiv.innerHTML = "⏳ Đang dịch...";
 
     try {
-        const res = await fetch(API_URL, {
+        const res = await fetch('https://haichim25-email-phishing-analyzer.hf.space/analyze',
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text, source_lang, target_lang })
