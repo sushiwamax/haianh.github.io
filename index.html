@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Phishing Email Analyzer — FPT Security</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -433,54 +434,113 @@ function clearHistory(){
   hist=[]; localStorage.removeItem('ph_hist'); updCount(); renderDrawer();
 }
 
-function exportPDF(){
+async function exportPDF(){
   if(!last){alert('Chưa có kết quả để export!');return;}
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({unit:'mm',format:'a4'});
-  const M=20; let y=M;
-  const W=170;
-  const add=(text,size,bold,color)=>{
-    doc.setFontSize(size||12);
-    doc.setFont('helvetica',bold?'bold':'normal');
-    doc.setTextColor(...(color||[26,26,26]));
-    doc.splitTextToSize(String(text),W).forEach(l=>{
-      if(y>272){doc.addPage();y=M;}
-      doc.text(l,M,y); y+=(size||12)*0.43;
-    }); y+=2;
-  };
-  const VC={phishing:[185,28,28],suspicious:[180,83,9],safe:[21,128,61]};
-  doc.setFillColor(24,24,27); doc.rect(0,0,210,16,'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(12); doc.setFont('helvetica','bold');
-  doc.text('Phishing Email Analyzer — FPT Security Research',M,11); y=24;
-  add('BÁO CÁO PHÂN TÍCH EMAIL PHISHING',15,true);
-  add(`Ngày tạo: ${new Date(last.timestamp).toLocaleString('vi-VN')}`,10,false,[130,130,130]);
-  y+=2;
-  add('THÔNG TIN EMAIL',10,true,[120,120,120]);
-  add(`Từ: ${last.from_header||'N/A'}`,11);
-  add(`Tiêu đề: ${last.subject||'N/A'}`,11);
-  y+=2;
-  add('KẾT QUẢ ĐÁNH GIÁ',10,true,[120,120,120]);
-  add(`${last.verdict_label}  —  Điểm nguy cơ: ${last.score}/100`,13,true,VC[last.verdict]||[0,0,0]);
-  add(last.summary||'',11,false,[80,80,80]);
-  y+=2;
-  const F=last.findings||[];
-  add(`Tổng dấu hiệu: ${F.filter(f=>f.severity==='high').length} nguy hiểm cao · ${F.filter(f=>f.severity==='medium').length} đáng ngờ · ${F.filter(f=>f.severity==='safe').length} an toàn`,11);
-  y+=2;
-  if(F.length){
-    add('CHI TIẾT DẤU HIỆU',10,true,[120,120,120]);
-    const O={high:0,medium:1,low:2,safe:3};
-    [...F].sort((a,b)=>O[a.severity]-O[b.severity]).forEach(f=>{
-      const C2={high:[185,28,28],medium:[180,83,9],low:[29,78,216],safe:[21,128,61]};
-      const L={high:'[NGUY HIỂM CAO]',medium:'[ĐÁNG NGỜ]',low:'[CHÚ Ý]',safe:'[AN TOÀN]'};
-      add(`${L[f.severity]} ${f.category}`,11,true,C2[f.severity]);
-      add(f.description,10,false,[70,70,70]);
-      if(f.detail) add(f.detail,9,false,[140,140,140]);
-      y+=1;
-    });
+
+  // Tạo div ẩn chứa nội dung báo cáo — dùng font trình duyệt nên tiếng Việt hiển thị đúng
+  const VC={phishing:'#b91c1c',suspicious:'#b45309',safe:'#15803d'};
+  const VBG={phishing:'#fff1f2',suspicious:'#fffbeb',safe:'#f0fdf4'};
+  const SL={high:'NGUY HIỂM CAO',medium:'ĐÁNG NGỜ',low:'CHÚ Ý',safe:'AN TOÀN'};
+  const SC={high:'#b91c1c',medium:'#b45309',low:'#1d4ed8',safe:'#15803d'};
+  const SBG={high:'#fff1f2',medium:'#fffbeb',low:'#eff6ff',safe:'#f0fdf4'};
+  const O={high:0,medium:1,low:2,safe:3};
+  const F=(last.findings||[]);
+  const sorted=[...F].sort((a,b)=>O[a.severity]-O[b.severity]);
+
+  const div=document.createElement('div');
+  div.style.cssText='position:fixed;left:-9999px;top:0;width:794px;background:#fff;font-family:Segoe UI,system-ui,sans-serif;font-size:13px;color:#18181b;padding:0';
+
+  div.innerHTML=`
+    <div style="background:#18181b;padding:14px 28px;display:flex;align-items:center;justify-content:space-between">
+      <div style="color:#fff;font-size:15px;font-weight:600">🔍 Phishing Email Analyzer</div>
+      <div style="color:rgba(255,255,255,.6);font-size:12px">FPT Security Research</div>
+    </div>
+    <div style="padding:28px">
+      <div style="font-size:20px;font-weight:600;margin-bottom:4px">Báo cáo Phân tích Email Phishing</div>
+      <div style="font-size:12px;color:#71717a;margin-bottom:24px">Ngày tạo: ${new Date(last.timestamp).toLocaleString('vi-VN')}</div>
+
+      <div style="background:#f7f7f5;border-radius:8px;padding:14px 18px;margin-bottom:20px">
+        <div style="font-size:11px;font-weight:600;color:#a1a1aa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Thông tin email</div>
+        <div style="margin-bottom:6px"><span style="color:#71717a;font-size:12px;min-width:60px;display:inline-block">Từ:</span> <span style="font-weight:500">${last.from_header||'N/A'}</span></div>
+        <div><span style="color:#71717a;font-size:12px;min-width:60px;display:inline-block">Tiêu đề:</span> <span style="font-weight:500">${last.subject||'N/A'}</span></div>
+      </div>
+
+      <div style="background:${VBG[last.verdict]||'#f7f7f5'};border-radius:8px;padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;gap:18px">
+        <div style="background:#fff;border-radius:50%;width:58px;height:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;font-weight:700;color:${VC[last.verdict]||'#18181b'}">${last.score}</div>
+        <div>
+          <div style="font-size:16px;font-weight:600;color:${VC[last.verdict]||'#18181b'};margin-bottom:4px">${last.verdict_label}</div>
+          <div style="font-size:12.5px;color:#52525b;line-height:1.6">${last.summary||''}</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px">
+        <div style="background:#f7f7f5;border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#b91c1c">${F.filter(f=>f.severity==='high').length}</div>
+          <div style="font-size:11px;color:#a1a1aa;margin-top:2px">Nguy hiểm cao</div>
+        </div>
+        <div style="background:#f7f7f5;border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#b45309">${F.filter(f=>f.severity==='medium').length}</div>
+          <div style="font-size:11px;color:#a1a1aa;margin-top:2px">Đáng ngờ</div>
+        </div>
+        <div style="background:#f7f7f5;border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#15803d">${F.filter(f=>f.severity==='safe').length}</div>
+          <div style="font-size:11px;color:#a1a1aa;margin-top:2px">Dấu hiệu tốt</div>
+        </div>
+      </div>
+
+      ${sorted.length?`
+      <div style="font-size:11px;font-weight:600;color:#a1a1aa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Chi tiết dấu hiệu</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${sorted.map(f=>`
+          <div style="background:${SBG[f.severity]||'#f7f7f5'};border-left:3px solid ${SC[f.severity]||'#a1a1aa'};border-radius:0 8px 8px 0;padding:10px 14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span style="background:${SC[f.severity]||'#a1a1aa'}22;color:${SC[f.severity]||'#a1a1aa'};font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">${SL[f.severity]||f.severity}</span>
+              <span style="font-size:13px;font-weight:500">${f.category}</span>
+            </div>
+            <div style="font-size:12.5px;color:#3f3f46;margin-bottom:${f.detail?'3px':'0'}">${f.description}</div>
+            ${f.detail?`<div style="font-size:11.5px;color:#71717a;line-height:1.5">${f.detail}</div>`:''}
+          </div>
+        `).join('')}
+      </div>`:''}
+
+      <div style="margin-top:28px;padding-top:16px;border-top:1px solid #e8e8e4;font-size:11px;color:#a1a1aa;text-align:center">
+        Báo cáo tạo tự động bởi Phishing Email Analyzer v2 — Nghiên cứu ATTT FPT Corporation
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(div);
+
+  try{
+    const btn=document.querySelector('.btn-action');
+    btn && (btn.textContent='⏳ Đang tạo PDF...');
+
+    const canvas=await html2canvas(div,{scale:2,useCORS:true,backgroundColor:'#ffffff'});
+    const imgData=canvas.toDataURL('image/png');
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({unit:'mm',format:'a4'});
+    const pageW=210, pageH=297;
+    const imgW=pageW;
+    const imgH=(canvas.height*imgW)/canvas.width;
+
+    let posY=0;
+    let remaining=imgH;
+    let first=true;
+    while(remaining>0){
+      if(!first) doc.addPage();
+      const sliceH=Math.min(pageH, remaining);
+      doc.addImage(imgData,'PNG',0,posY===0?0:-(pageH-sliceH+posY),imgW,imgH);
+      posY+=pageH;
+      remaining-=pageH;
+      first=false;
+    }
+    doc.save(`phishing-report-${Date.now()}.pdf`);
+    btn && (btn.textContent='📄 Export PDF');
+  }catch(e){
+    alert('Lỗi tạo PDF: '+e.message);
+  }finally{
+    document.body.removeChild(div);
   }
-  y+=4;
-  add('Báo cáo tạo tự động bởi Phishing Email Analyzer v2 — Nghiên cứu ATTT FPT Corporation',9,false,[170,170,170]);
-  doc.save(`phishing-report-${Date.now()}.pdf`);
 }
 
 function copyResult(){
