@@ -1,11 +1,11 @@
+cat > /mnt/user-data/outputs/index.html << 'ENDOFFILE'
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phishing Email Analyzer — FPT Security</title>
+<title>Phan tich Email Phishing — FPT Security</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -20,34 +20,29 @@
 }
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* Header */
 header{background:var(--accent);padding:0 1.75rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100}
-.logo{font-size:14px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px;letter-spacing:.01em}
+.logo{font-size:14px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px}
 .logo-dot{width:8px;height:8px;background:#ef4444;border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.tag{font-size:11px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);padding:3px 10px;border-radius:20px;font-weight:500;letter-spacing:.02em}
+.tag{font-size:11px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);padding:3px 10px;border-radius:20px;font-weight:500}
 .btn-history{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:6px 12px;font-size:12.5px;cursor:pointer;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:6px;transition:background .15s}
 .btn-history:hover{background:rgba(255,255,255,.15)}
 .hbadge{background:#ef4444;color:#fff;border-radius:20px;padding:1px 6px;font-size:11px;font-weight:700}
 
-/* Layout */
 .wrap{max-width:1080px;margin:0 auto;padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
 @media(max-width:740px){.wrap{grid-template-columns:1fr;padding:1rem}}
 
-/* Card */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.375rem}
 .section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
 
-/* Form */
 .field{margin-bottom:.875rem}
 label{display:block;font-size:12.5px;font-weight:500;color:var(--text2);margin-bottom:4px}
 input[type=text],textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;font-size:13.5px;font-family:inherit;color:var(--text);background:var(--bg);transition:border .15s,background .15s}
 input:focus,textarea:focus{outline:none;border-color:#a1a1aa;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.04)}
 textarea{resize:vertical;line-height:1.6}
-#headers_raw,#extra_url{font-family:'Courier New',monospace;font-size:12px}
+#headers_raw{font-family:'Courier New',monospace;font-size:12px}
 .hint{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.55}
 
-/* Samples */
 .sample-row{margin-bottom:1rem}
 .sample-label{font-size:11px;color:var(--text3);margin-bottom:6px}
 .samples{display:flex;gap:5px;flex-wrap:wrap}
@@ -56,21 +51,18 @@ textarea{resize:vertical;line-height:1.6}
 .sample-btn.good{border-color:#bbf7d0;color:var(--green)}
 .sample-btn.good:hover{background:var(--greenbg)}
 
-/* Advanced */
-.adv-toggle{font-size:12px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:5px;margin-bottom:.875rem;user-select:none;transition:color .15s}
+.adv-toggle{font-size:12px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:5px;margin-bottom:.875rem;user-select:none}
 .adv-toggle:hover{color:var(--text2)}
 .adv-body{display:none}
 .adv-body.open{display:block}
 
-/* Analyze btn */
-.btn-analyze{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:11px;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s;margin-top:.375rem;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.01em}
+.btn-analyze{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:11px;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s;margin-top:.375rem;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-analyze:hover:not(:disabled){opacity:.82}
 .btn-analyze:disabled{opacity:.4;cursor:not-allowed}
 .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite;display:none}
 .spin.on{display:block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Score */
 .score-wrap{display:flex;align-items:center;gap:1rem;padding:1rem 1.125rem;border-radius:var(--radius-sm);margin-bottom:1rem;border:1px solid}
 .score-wrap.phishing{background:var(--redbg);border-color:var(--redborder)}
 .score-wrap.suspicious{background:var(--yellowbg);border-color:var(--yellowborder)}
@@ -92,7 +84,6 @@ textarea{resize:vertical;line-height:1.6}
 .verdict-v.safe{color:var(--green)}
 .summary-v{font-size:12.5px;color:var(--text2);line-height:1.65}
 
-/* Stats */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
 .stat{background:var(--bg);border-radius:var(--radius-sm);padding:.75rem;text-align:center;border:1px solid var(--border)}
 .stat-n{font-size:19px;font-weight:700}
@@ -101,12 +92,10 @@ textarea{resize:vertical;line-height:1.6}
 .stat-n.g{color:var(--green)}
 .stat-t{font-size:11px;color:var(--text3);margin-top:2px}
 
-/* Actions */
 .actions{display:flex;gap:7px;margin-bottom:1rem;flex-wrap:wrap}
 .btn-action{border:1px solid var(--border);background:#fff;border-radius:var(--radius-sm);padding:6px 12px;font-size:12px;cursor:pointer;color:var(--text2);display:flex;align-items:center;gap:5px;transition:all .15s;font-family:inherit}
 .btn-action:hover{background:var(--bg);border-color:#a1a1aa}
 
-/* Findings */
 .findings{display:flex;flex-direction:column;gap:7px}
 .fi{border-radius:var(--radius-sm);padding:.75rem 1rem;border-left:3px solid}
 .fi.high{background:var(--redbg);border-color:#f87171}
@@ -123,12 +112,10 @@ textarea{resize:vertical;line-height:1.6}
 .fi-desc{font-size:12.5px;color:var(--text2);margin-bottom:2px;line-height:1.55}
 .fi-detail{font-size:11.5px;color:var(--text3);line-height:1.55}
 
-/* Placeholder */
-.ph{text-align:center;padding:3.5rem 1.5rem;color:var(--text3)}
+.ph{text-align:center;padding:3.5rem 1.5rem}
 .ph-icon{font-size:32px;margin-bottom:.875rem;opacity:.5}
 .ph p{font-size:13px;line-height:1.8;color:var(--text3)}
 
-/* Drawer */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:200;display:none;opacity:0;transition:opacity .2s;backdrop-filter:blur(2px)}
 .overlay.on{display:block;opacity:1}
 .drawer{position:fixed;right:0;top:0;bottom:0;width:min(400px,100vw);background:#fff;border-left:1px solid var(--border);z-index:201;transform:translateX(100%);transition:transform .22s ease;display:flex;flex-direction:column}
@@ -158,69 +145,67 @@ textarea{resize:vertical;line-height:1.6}
 <body>
 
 <header>
-  <div class="logo"><div class="logo-dot"></div> Phishing Email Analyzer</div>
+  <div class="logo"><div class="logo-dot"></div> Phan tich Email Phishing</div>
   <div style="display:flex;align-items:center;gap:10px">
     <span class="tag">FPT Security Research</span>
-    <button class="btn-history" onclick="openDrawer()">Lịch sử <span class="hbadge" id="hcount">0</span></button>
+    <button class="btn-history" onclick="openDrawer()">Lich su <span class="hbadge" id="hcount">0</span></button>
   </div>
 </header>
 
 <div class="wrap">
-
   <!-- INPUT -->
   <div class="card">
-    <div class="section-label">Thông tin email cần phân tích</div>
+    <div class="section-label">Thong tin email can phan tich</div>
 
     <div class="sample-row">
-      <div class="sample-label">Thử mẫu có sẵn:</div>
+      <div class="sample-label">Thu mau co san:</div>
       <div class="samples">
         <button class="sample-btn" onclick="loadSample('bec')">CEO Fraud</button>
-        <button class="sample-btn" onclick="loadSample('urgency')">IT Support giả</button>
-        <button class="sample-btn" onclick="loadSample('doubleext')">File .exe giả PDF</button>
+        <button class="sample-btn" onclick="loadSample('urgency')">IT Support gia</button>
+        <button class="sample-btn" onclick="loadSample('doubleext')">File .exe gia PDF</button>
         <button class="sample-btn" onclick="loadSample('vendor')">Vendor BEC</button>
-        <button class="sample-btn good" onclick="loadSample('legit')">✓ Email hợp lệ</button>
+        <button class="sample-btn good" onclick="loadSample('legit')">&#10003; Email hop le</button>
       </div>
     </div>
 
     <div class="field">
-      <label>Người gửi (From)</label>
+      <label>Nguoi gui (From)</label>
       <input type="text" id="from_header" placeholder="VD: FPT IT Support <it-helpdesk@fpt.com.vn>">
     </div>
     <div class="field">
-      <label>Tiêu đề (Subject)</label>
-      <input type="text" id="subject" placeholder="VD: Thông báo lịch đào tạo ATTT Q1/2025">
+      <label>Tieu de (Subject)</label>
+      <input type="text" id="subject" placeholder="VD: [URGENT] Tai khoan sap bi khoa">
     </div>
     <div class="field">
-      <label>Nội dung email (Body)</label>
-      <textarea id="body" rows="6" placeholder="Dán nội dung email vào đây..."></textarea>
+      <label>Noi dung email (Body)</label>
+      <textarea id="body" rows="6" placeholder="Dan noi dung email vao day..."></textarea>
     </div>
 
     <div class="adv-toggle" onclick="toggleAdv()">
-      <span id="adv-arr">▶</span> Tùy chọn nâng cao
+      <span id="adv-arr">&#9658;</span> Tuy chon nang cao
     </div>
     <div class="adv-body" id="adv-body">
       <div class="field">
-        <label>Email Headers (tùy chọn)</label>
-        <textarea id="headers_raw" rows="4" placeholder="Dán raw email headers để kiểm tra SPF / DKIM / DMARC..."></textarea>
-        <div class="hint">Gmail: More (⋮) → Show original &nbsp;|&nbsp; Outlook: File → Properties → Internet headers</div>
+        <label>Email Headers (tuy chon)</label>
+        <textarea id="headers_raw" rows="4" placeholder="Dan raw headers de kiem tra SPF / DKIM / DMARC..."></textarea>
+        <div class="hint">Gmail: More (&#8942;) &#8594; Show original &nbsp;|&nbsp; Outlook: File &#8594; Properties &#8594; Internet headers</div>
       </div>
       <div class="field">
-        <label>URL cần kiểm tra riêng (tùy chọn)</label>
+        <label>URL can kiem tra rieng (tuy chon)</label>
         <input type="text" id="extra_url" placeholder="VD: https://fpt-verify.xyz/login">
-        <div class="hint">Dán link đáng ngờ để phân tích domain độc lập với nội dung email</div>
       </div>
     </div>
 
     <button class="btn-analyze" id="btn" onclick="runAnalysis()">
       <div class="spin" id="spin"></div>
-      <span id="btn-text">🔎 Phân tích ngay</span>
+      <span id="btn-text">&#128269; Phan tich ngay</span>
     </button>
   </div>
 
   <!-- RESULT -->
   <div>
     <div class="card" id="res-card" style="display:none">
-      <div class="section-label">Kết quả phân tích</div>
+      <div class="section-label">Ket qua phan tich</div>
       <div id="score-wrap" class="score-wrap">
         <div class="ring">
           <svg viewBox="0 0 58 58" width="58" height="58">
@@ -236,30 +221,29 @@ textarea{resize:vertical;line-height:1.6}
       </div>
       <div class="stats" id="stats"></div>
       <div class="actions">
-        <button class="btn-action" onclick="exportPDF()">📄 Export PDF</button>
-        <button class="btn-action" onclick="copyResult()">📋 Copy kết quả</button>
+        <button class="btn-action" id="pdf-btn" onclick="exportPDF()">&#128196; Export PDF</button>
+        <button class="btn-action" onclick="copyResult()">&#128203; Copy ket qua</button>
       </div>
-      <div class="section-label">Chi tiết dấu hiệu</div>
+      <div class="section-label">Chi tiet dau hieu</div>
       <div id="findings" class="findings"></div>
     </div>
 
     <div class="card" id="ph-card">
       <div class="ph">
-        <div class="ph-icon">📧</div>
-        <p>Nhập thông tin email và nhấn<br><strong style="color:var(--text2)">Phân tích ngay</strong> để xem kết quả<br><br>
-        Kiểm tra: domain giả mạo · URL độc hại · file nguy hiểm<br>CEO Fraud · BEC · SPF / DKIM / DMARC</p>
+        <div class="ph-icon">&#128231;</div>
+        <p>Nhap thong tin email va nhan<br><strong style="color:var(--text2)">Phan tich ngay</strong> de xem ket qua<br><br>
+        Kiem tra: domain gia mao · URL doc hai · file nguy hiem<br>CEO Fraud · BEC · SPF / DKIM / DMARC</p>
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- Drawer -->
 <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
-  <div class="dh"><h3>Lịch sử phân tích</h3><button class="btn-x" onclick="closeDrawer()">✕</button></div>
+  <div class="dh"><h3>Lich su phan tich</h3><button class="btn-x" onclick="closeDrawer()">&#10005;</button></div>
   <div class="db" id="db"></div>
-  <div class="df"><button class="btn-clr" onclick="clearHistory()">🗑 Xóa toàn bộ lịch sử</button></div>
+  <div class="df"><button class="btn-clr" onclick="clearHistory()">&#128465; Xoa toan bo lich su</button></div>
 </div>
 
 <script>
@@ -268,35 +252,55 @@ let hist = JSON.parse(localStorage.getItem('ph_hist')||'[]');
 let last = null;
 updCount();
 
+// Chuyen tieng Viet co dau sang khong dau cho PDF
+function removeAccents(str){
+  if(!str) return '';
+  return str
+    .replace(/[àáâãăặắằẵẩẫấầảạ]/g,'a')
+    .replace(/[ÀÁÂÃĂẶẮẰẴẨẪẤẦẢẠ]/g,'A')
+    .replace(/[èéêẹẻẽếềệểễ]/g,'e')
+    .replace(/[ÈÉÊẸẺẼẾỀỆỂỄ]/g,'E')
+    .replace(/[ìíịỉĩ]/g,'i')
+    .replace(/[ÌÍỊỈĨ]/g,'I')
+    .replace(/[òóôõơọỏốồổỗộớờởỡợ]/g,'o')
+    .replace(/[ÒÓÔÕƠỌỎỐỒỔỖỘỚỜỞỠỢ]/g,'O')
+    .replace(/[ùúưụủũứừửữựụ]/g,'u')
+    .replace(/[ÙÚƯỤỦŨỨỪỬỮỰỤ]/g,'U')
+    .replace(/[ỳýỵỷỹ]/g,'y')
+    .replace(/[ỲÝỴỶỸ]/g,'Y')
+    .replace(/đ/g,'d').replace(/Đ/g,'D')
+    .replace(/[^\x00-\x7F]/g,'?');
+}
+
 const SAMPLES = {
   bec:{
-    from_header:'Trương Gia Bình (CEO FPT) <truong.gia.binh.ceo@gmail.com>',
-    subject:'Chuyển khoản khẩn — Bảo mật tuyệt đối',
-    body:'Em ơi, anh đang trong cuộc họp quan trọng, không tiện nghe máy. Em chuyển gấp 450 triệu VNĐ sang tài khoản dưới đây để hoàn tất thương vụ hôm nay:\n\nNgân hàng: Vietcombank\nSTK: 1234567890\nTên: Nguyen Van A\n\nXong rồi báo anh qua email này. Tuyệt đối không nói với ai, kể cả CFO.\n\nAnh Bình',
+    from_header:'Truong Gia Binh (CEO FPT) <truong.gia.binh.ceo@gmail.com>',
+    subject:'Chuyen khoan khan — Bao mat tuyet doi',
+    body:'Em oi, anh dang trong cuoc hop quan trong, khong tien nghe may. Em chuyen gap 450 trieu VND sang tai khoan duoi day de hoan tat thuong vu hom nay:\n\nNgan hang: Vietcombank\nSTK: 1234567890\nTen: Nguyen Van A\n\nXong roi bao anh qua email nay. Tuyet doi khong noi voi ai, ke ca CFO.\n\nAnh Binh',
     headers_raw:''
   },
   urgency:{
     from_header:'FPT IT Support <it-support@fpt-helpdesk.net>',
-    subject:'[URGENT] Tài khoản FPT ID sắp bị khóa — Xác minh ngay',
-    body:'Kính gửi Anh/Chị,\n\nHệ thống bảo mật FPT phát hiện đăng nhập bất thường từ tài khoản của bạn. Tài khoản sẽ bị khóa vĩnh viễn trong vòng 24 giờ nếu không xác minh.\n\nNhấn vào link sau để cập nhật mật khẩu ngay lập tức:\nhttp://fpt-id-verify.xyz/login?token=a9f3k\n\nTrân trọng,\nFPT IT Security Team',
+    subject:'[URGENT] Tai khoan FPT ID sap bi khoa — Xac minh ngay',
+    body:'Kinh gui Anh/Chi,\n\nHe thong bao mat FPT phat hien dang nhap bat thuong. Tai khoan se bi khoa vinh vien trong vong 24 gio neu khong xac minh.\n\nNhan vao link sau de cap nhat mat khau ngay lap tuc:\nhttp://fpt-id-verify.xyz/login?token=a9f3k\n\nTran trong,\nFPT IT Security Team',
     headers_raw:'From: it-support@fpt-helpdesk.net\nReply-To: attacker@evil.com\nReceived-SPF: fail\nDKIM-Signature: v=1; dkim=fail'
   },
   doubleext:{
-    from_header:'Phòng Nhân sự FPT <hr-thongbao@fpt.com.vn>',
-    subject:'Thông báo điều chỉnh lương Q4/2024 — Xác nhận trước 15/11',
-    body:'Kính gửi Anh/Chị,\n\nPhòng Nhân sự xin gửi thông báo về điều chỉnh lương quý 4/2024. Vui lòng mở file đính kèm để xem chi tiết và ký xác nhận điện tử.\n\n📎 BangLuong_Q4_2024.pdf.exe\n\nHạn xác nhận: 15/11/2024.\n\nTrân trọng,\nPhòng Nhân sự — FPT Corporation',
+    from_header:'Phong Nhan su FPT <hr-thongbao@fpt.com.vn>',
+    subject:'Thong bao dieu chinh luong Q4/2024 — Xac nhan truoc 15/11',
+    body:'Kinh gui Anh/Chi,\n\nPhong Nhan su gui file bang luong quy 4/2024. Vui long mo file dinh kem va ky xac nhan dien tu.\n\nDinh kem: BangLuong_Q4_2024.pdf.exe\n\nHan xac nhan: 15/11/2024\n\nTran trong,\nPhong Nhan su FPT Corporation',
     headers_raw:''
   },
   vendor:{
-    from_header:'Công ty TNHH Đối tác FPT <procurement@supplier-fpt.vn>',
-    subject:'Cập nhật thông tin ngân hàng — Hợp đồng số 2024-1102',
-    body:'Kính gửi Phòng Mua hàng FPT,\n\nDo thay đổi ngân hàng đối tác, chúng tôi thông báo số tài khoản mới cho tất cả thanh toán từ ngày 01/12/2024:\n\nNgân hàng: Techcombank\nSTK mới: 9876543210\nTên TK: Cty TNHH Doi Tac FPT\n\nVui lòng cập nhật và sử dụng tài khoản mới cho hóa đơn tháng 12. Chuyển khoản khẩn nhé.\n\nTrân trọng,\nPhòng Kế toán',
+    from_header:'Cong ty TNHH Doi tac FPT <procurement@supplier-fpt.vn>',
+    subject:'Cap nhat thong tin ngan hang — Hop dong so 2024-1102',
+    body:'Kinh gui Phong Mua hang FPT,\n\nDo thay doi ngan hang doi tac, vui long dung tai khoan moi cho thanh toan tu thang 12/2024:\n\nNgan hang: Techcombank\nSTK moi: 9876543210\nTen TK: Cty TNHH Doi Tac FPT\n\nVui long cap nhat va chuyen khoan khan cho hoa don thang 12.\n\nTran trong,\nPhong Ke toan',
     headers_raw:''
   },
   legit:{
-    from_header:'Ban Đào tạo FPT Corporation <dao-tao@fpt.edu.vn>',
-    subject:'[FPT Learning] Lịch đào tạo An toàn thông tin bắt buộc Q1/2025',
-    body:'Kính gửi Anh/Chị,\n\nTheo kế hoạch đào tạo năm 2025 của FPT Corporation, tất cả nhân sự tham gia khóa học An toàn thông tin bắt buộc (mã khóa: ATTT-2025-Q1).\n\nThời gian: 15/01/2025 – 20/01/2025\nHình thức: Online qua FPT Learning System\nĐăng ký tại: https://learning.fpt.com.vn/attt-2025\n\nHạn đăng ký: 10/01/2025. Liên hệ hr@fpt.com.vn hoặc ext. 1234 nếu có thắc mắc.\n\nTrân trọng,\nBan Đào tạo — FPT Corporation\nĐT nội bộ: (024) 7300 7300 ext. 1234',
+    from_header:'Ban Dao tao FPT Corporation <dao-tao@fpt.edu.vn>',
+    subject:'[FPT Learning] Lich dao tao An toan thong tin bat buoc Q1/2025',
+    body:'Kinh gui Anh/Chi,\n\nTheo ke hoach dao tao nam 2025, tat ca nhan su tham gia khoa hoc An toan thong tin bat buoc (Ma khoa: ATTT-2025-Q1).\n\nThoi gian: 15/01/2025 - 20/01/2025\nHinh thuc: Online qua FPT Learning System\nDang ky tai: https://learning.fpt.com.vn/attt-2025\n\nHan dang ky: 10/01/2025. Lien he hr@fpt.com.vn hoac ext. 1234 neu co thac mac.\n\nTran trong,\nBan Dao tao FPT Corporation\nDT noi bo: (024) 7300 7300 ext. 1234',
     headers_raw:'From: dao-tao@fpt.edu.vn\nReply-To: dao-tao@fpt.edu.vn\nReceived-SPF: pass (fpt.edu.vn)\nDKIM-Signature: v=1; a=rsa-sha256; d=fpt.edu.vn; dkim=pass\nDMARC: pass'
   }
 };
@@ -309,21 +313,21 @@ function loadSample(k){
   document.getElementById('headers_raw').value=s.headers_raw;
   if(s.headers_raw){
     document.getElementById('adv-body').classList.add('open');
-    document.getElementById('adv-arr').textContent='▼';
+    document.getElementById('adv-arr').innerHTML='&#9660;';
   }
 }
 
 function toggleAdv(){
   const b=document.getElementById('adv-body');
   b.classList.toggle('open');
-  document.getElementById('adv-arr').textContent=b.classList.contains('open')?'▼':'▶';
+  document.getElementById('adv-arr').innerHTML=b.classList.contains('open')?'&#9660;':'&#9658;';
 }
 
 async function runAnalysis(){
   const btn=document.getElementById('btn');
   const sp=document.getElementById('spin');
   const bt=document.getElementById('btn-text');
-  btn.disabled=true; sp.classList.add('on'); bt.textContent='Đang phân tích...';
+  btn.disabled=true; sp.classList.add('on'); bt.textContent='Dang phan tich...';
 
   const payload={
     from_header: document.getElementById('from_header').value,
@@ -335,23 +339,30 @@ async function runAnalysis(){
   try{
     const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data=await res.json();
-    last={...data,from_header:payload.from_header,subject:payload.subject,timestamp:new Date().toISOString()};
+    last={...data, from_header:payload.from_header, subject:payload.subject, timestamp:new Date().toISOString()};
     renderResult(data);
     saveHist(last);
   }catch(e){
     document.getElementById('ph-card').style.display='none';
     document.getElementById('res-card').style.display='block';
-    document.getElementById('findings').innerHTML='<div style="color:var(--text3);font-size:13px;padding:.5rem 0">❌ Lỗi kết nối server. Kiểm tra HF Space còn Running không.</div>';
+    document.getElementById('findings').innerHTML='<div style="color:var(--text3);font-size:13px;padding:.5rem 0">&#10060; Loi ket noi server. Kiem tra HF Space con Running khong.</div>';
   }
-  btn.disabled=false; sp.classList.remove('on'); bt.textContent='🔎 Phân tích ngay';
+  btn.disabled=false; sp.classList.remove('on'); bt.innerHTML='&#128269; Phan tich ngay';
 }
+
+// Labels hien thi tren UI (tieng Viet co dau — OK vi chi dung trong innerHTML)
+const VERDICT_UI={
+  phishing:'&#9888; Nguy co cao — Phishing',
+  suspicious:'&#9889; Dang ngo — Can xac minh',
+  safe:'&#10003; Co ve an toan'
+};
+const SEV_UI={high:'NGUY HIEM',medium:'DANG NGO',low:'CHU Y',safe:'AN TOAN'};
 
 function renderResult(data){
   document.getElementById('ph-card').style.display='none';
   document.getElementById('res-card').style.display='block';
   const v=data.verdict, sc=data.score;
 
-  // Ring
   const C=150.8, off=C-(sc/100)*C;
   const rf=document.getElementById('rfill');
   rf.className=`rfill ${v}`;
@@ -361,29 +372,29 @@ function renderResult(data){
 
   document.getElementById('score-wrap').className=`score-wrap ${v}`;
   const vv=document.getElementById('verdict-v');
-  vv.textContent=data.verdict_label; vv.className=`verdict-v ${v}`;
+  vv.innerHTML=VERDICT_UI[v]||v; vv.className=`verdict-v ${v}`;
   document.getElementById('summary-v').textContent=data.summary;
 
-  const high=data.findings.filter(f=>f.severity==='high').length;
-  const med=data.findings.filter(f=>f.severity==='medium').length;
-  const safe=data.findings.filter(f=>f.severity==='safe').length;
+  const F=data.findings||[];
+  const high=F.filter(f=>f.severity==='high').length;
+  const med=F.filter(f=>f.severity==='medium').length;
+  const safe=F.filter(f=>f.severity==='safe').length;
   document.getElementById('stats').innerHTML=`
-    <div class="stat"><div class="stat-n r">${high}</div><div class="stat-t">Nguy hiểm cao</div></div>
-    <div class="stat"><div class="stat-n y">${med}</div><div class="stat-t">Đáng ngờ</div></div>
-    <div class="stat"><div class="stat-n g">${safe}</div><div class="stat-t">Dấu hiệu tốt</div></div>
+    <div class="stat"><div class="stat-n r">${high}</div><div class="stat-t">Nguy hiem cao</div></div>
+    <div class="stat"><div class="stat-n y">${med}</div><div class="stat-t">Dang ngo</div></div>
+    <div class="stat"><div class="stat-n g">${safe}</div><div class="stat-t">Dau hieu tot</div></div>
   `;
 
-  const SL={high:'NGUY HIỂM',medium:'ĐÁNG NGỜ',low:'CHÚ Ý',safe:'AN TOÀN'};
   const ORD={high:0,medium:1,low:2,safe:3};
-  const sorted=[...data.findings].sort((a,b)=>ORD[a.severity]-ORD[b.severity]);
+  const sorted=[...F].sort((a,b)=>ORD[a.severity]-ORD[b.severity]);
   if(!sorted.length){
-    document.getElementById('findings').innerHTML='<div style="color:var(--text3);font-size:13px;padding:.5rem 0">Không phát hiện dấu hiệu đáng ngờ nào.</div>';
+    document.getElementById('findings').innerHTML='<div style="color:var(--text3);font-size:13px;padding:.5rem 0">Khong phat hien dau hieu dang ngo nao.</div>';
     return;
   }
   document.getElementById('findings').innerHTML=sorted.map(f=>`
     <div class="fi ${f.severity}">
       <div class="fi-top">
-        <span class="badge ${f.severity}">${SL[f.severity]||f.severity}</span>
+        <span class="badge ${f.severity}">${SEV_UI[f.severity]||f.severity}</span>
         <span class="fi-cat">${f.category}</span>
       </div>
       <div class="fi-desc">${f.description}</div>
@@ -400,25 +411,20 @@ function saveHist(item){
 }
 function updCount(){document.getElementById('hcount').textContent=hist.length;}
 
-function openDrawer(){
-  renderDrawer();
-  document.getElementById('overlay').classList.add('on');
-  document.getElementById('drawer').classList.add('on');
-}
-function closeDrawer(){
-  document.getElementById('overlay').classList.remove('on');
-  document.getElementById('drawer').classList.remove('on');
-}
+function openDrawer(){renderDrawer();document.getElementById('overlay').classList.add('on');document.getElementById('drawer').classList.add('on');}
+function closeDrawer(){document.getElementById('overlay').classList.remove('on');document.getElementById('drawer').classList.remove('on');}
+
 function renderDrawer(){
-  if(!hist.length){document.getElementById('db').innerHTML='<div class="d-empty">Chưa có lịch sử phân tích</div>';return;}
+  if(!hist.length){document.getElementById('db').innerHTML='<div class="d-empty">Chua co lich su phan tich</div>';return;}
+  const vLabel={phishing:'Nguy co cao',suspicious:'Dang ngo',safe:'An toan'};
   document.getElementById('db').innerHTML=hist.map((item,i)=>{
     const d=new Date(item.timestamp);
     const t=d.toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
     return `<div class="hi" onclick="loadHist(${i})">
-      <div class="hi-top"><span class="hbv ${item.verdict}">${item.verdict_label||item.verdict}</span><span class="ht">${t}</span></div>
-      <div class="hf">${item.from_header||'(không có)'}</div>
-      <div class="hs">${item.subject||'(không có tiêu đề)'}</div>
-      <div class="hsc">Điểm: ${item.score}/100 · ${(item.findings||[]).filter(f=>f.severity==='high').length} dấu hiệu nguy hiểm</div>
+      <div class="hi-top"><span class="hbv ${item.verdict}">${vLabel[item.verdict]||item.verdict}</span><span class="ht">${t}</span></div>
+      <div class="hf">${item.from_header||'(khong co)'}</div>
+      <div class="hs">${item.subject||'(khong co tieu de)'}</div>
+      <div class="hsc">Diem: ${item.score}/100 &middot; ${(item.findings||[]).filter(f=>f.severity==='high').length} dau hieu nguy hiem</div>
     </div>`;
   }).join('');
 }
@@ -430,125 +436,77 @@ function loadHist(i){
   closeDrawer();
 }
 function clearHistory(){
-  if(!confirm('Xóa toàn bộ lịch sử?'))return;
+  if(!confirm('Xoa toan bo lich su?'))return;
   hist=[]; localStorage.removeItem('ph_hist'); updCount(); renderDrawer();
 }
 
-async function exportPDF(){
-  if(!last){alert('Chưa có kết quả để export!');return;}
+// PDF: dung removeAccents() cho tat ca text truoc khi dua vao jsPDF
+function exportPDF(){
+  if(!last){alert('Chua co ket qua de export!');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const M=20; let y=M; const W=170;
 
-  // Tạo div ẩn chứa nội dung báo cáo — dùng font trình duyệt nên tiếng Việt hiển thị đúng
-  const VC={phishing:'#b91c1c',suspicious:'#b45309',safe:'#15803d'};
-  const VBG={phishing:'#fff1f2',suspicious:'#fffbeb',safe:'#f0fdf4'};
-  const SL={high:'NGUY HIỂM CAO',medium:'ĐÁNG NGỜ',low:'CHÚ Ý',safe:'AN TOÀN'};
-  const SC={high:'#b91c1c',medium:'#b45309',low:'#1d4ed8',safe:'#15803d'};
-  const SBG={high:'#fff1f2',medium:'#fffbeb',low:'#eff6ff',safe:'#f0fdf4'};
-  const O={high:0,medium:1,low:2,safe:3};
-  const F=(last.findings||[]);
-  const sorted=[...F].sort((a,b)=>O[a.severity]-O[b.severity]);
+  const r=removeAccents; // alias ngan
 
-  const div=document.createElement('div');
-  div.style.cssText='position:fixed;left:-9999px;top:0;width:794px;background:#fff;font-family:Segoe UI,system-ui,sans-serif;font-size:13px;color:#18181b;padding:0';
+  const add=(text,size,bold,color)=>{
+    doc.setFontSize(size||12);
+    doc.setFont('helvetica',bold?'bold':'normal');
+    doc.setTextColor(...(color||[26,26,26]));
+    doc.splitTextToSize(r(String(text)),W).forEach(l=>{
+      if(y>272){doc.addPage();y=M;}
+      doc.text(l,M,y); y+=(size||12)*0.43;
+    }); y+=2;
+  };
 
-  div.innerHTML=`
-    <div style="background:#18181b;padding:14px 28px;display:flex;align-items:center;justify-content:space-between">
-      <div style="color:#fff;font-size:15px;font-weight:600">🔍 Phishing Email Analyzer</div>
-      <div style="color:rgba(255,255,255,.6);font-size:12px">FPT Security Research</div>
-    </div>
-    <div style="padding:28px">
-      <div style="font-size:20px;font-weight:600;margin-bottom:4px">Báo cáo Phân tích Email Phishing</div>
-      <div style="font-size:12px;color:#71717a;margin-bottom:24px">Ngày tạo: ${new Date(last.timestamp).toLocaleString('vi-VN')}</div>
+  const VC={phishing:[185,28,28],suspicious:[180,83,9],safe:[21,128,61]};
+  const SL={high:'[NGUY HIEM CAO]',medium:'[DANG NGO]',low:'[CHU Y]',safe:'[AN TOAN]'};
+  const SC={high:[185,28,28],medium:[180,83,9],low:[29,78,216],safe:[21,128,61]};
+  const VL={phishing:'NGUY CO CAO — PHISHING',suspicious:'DANG NGO — CAN XAC MINH',safe:'CO VE AN TOAN'};
 
-      <div style="background:#f7f7f5;border-radius:8px;padding:14px 18px;margin-bottom:20px">
-        <div style="font-size:11px;font-weight:600;color:#a1a1aa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Thông tin email</div>
-        <div style="margin-bottom:6px"><span style="color:#71717a;font-size:12px;min-width:60px;display:inline-block">Từ:</span> <span style="font-weight:500">${last.from_header||'N/A'}</span></div>
-        <div><span style="color:#71717a;font-size:12px;min-width:60px;display:inline-block">Tiêu đề:</span> <span style="font-weight:500">${last.subject||'N/A'}</span></div>
-      </div>
+  doc.setFillColor(24,24,27); doc.rect(0,0,210,16,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(12); doc.setFont('helvetica','bold');
+  doc.text('Phishing Email Analyzer — FPT Security Research',M,11); y=24;
 
-      <div style="background:${VBG[last.verdict]||'#f7f7f5'};border-radius:8px;padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;gap:18px">
-        <div style="background:#fff;border-radius:50%;width:58px;height:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;font-weight:700;color:${VC[last.verdict]||'#18181b'}">${last.score}</div>
-        <div>
-          <div style="font-size:16px;font-weight:600;color:${VC[last.verdict]||'#18181b'};margin-bottom:4px">${last.verdict_label}</div>
-          <div style="font-size:12.5px;color:#52525b;line-height:1.6">${last.summary||''}</div>
-        </div>
-      </div>
+  add('BAO CAO PHAN TICH EMAIL PHISHING',15,true);
+  add('Ngay tao: '+new Date(last.timestamp).toLocaleString('vi-VN'),10,false,[130,130,130]);
+  y+=3;
 
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px">
-        <div style="background:#f7f7f5;border-radius:8px;padding:12px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:#b91c1c">${F.filter(f=>f.severity==='high').length}</div>
-          <div style="font-size:11px;color:#a1a1aa;margin-top:2px">Nguy hiểm cao</div>
-        </div>
-        <div style="background:#f7f7f5;border-radius:8px;padding:12px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:#b45309">${F.filter(f=>f.severity==='medium').length}</div>
-          <div style="font-size:11px;color:#a1a1aa;margin-top:2px">Đáng ngờ</div>
-        </div>
-        <div style="background:#f7f7f5;border-radius:8px;padding:12px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:#15803d">${F.filter(f=>f.severity==='safe').length}</div>
-          <div style="font-size:11px;color:#a1a1aa;margin-top:2px">Dấu hiệu tốt</div>
-        </div>
-      </div>
+  add('THONG TIN EMAIL',10,true,[100,100,100]);
+  add('Tu: '+(last.from_header||'N/A'),11);
+  add('Tieu de: '+(last.subject||'N/A'),11);
+  y+=3;
 
-      ${sorted.length?`
-      <div style="font-size:11px;font-weight:600;color:#a1a1aa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Chi tiết dấu hiệu</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        ${sorted.map(f=>`
-          <div style="background:${SBG[f.severity]||'#f7f7f5'};border-left:3px solid ${SC[f.severity]||'#a1a1aa'};border-radius:0 8px 8px 0;padding:10px 14px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-              <span style="background:${SC[f.severity]||'#a1a1aa'}22;color:${SC[f.severity]||'#a1a1aa'};font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">${SL[f.severity]||f.severity}</span>
-              <span style="font-size:13px;font-weight:500">${f.category}</span>
-            </div>
-            <div style="font-size:12.5px;color:#3f3f46;margin-bottom:${f.detail?'3px':'0'}">${f.description}</div>
-            ${f.detail?`<div style="font-size:11.5px;color:#71717a;line-height:1.5">${f.detail}</div>`:''}
-          </div>
-        `).join('')}
-      </div>`:''}
+  add('KET QUA DANH GIA',10,true,[100,100,100]);
+  add((VL[last.verdict]||last.verdict)+' — Diem nguy co: '+last.score+'/100',13,true,VC[last.verdict]||[0,0,0]);
+  const F=last.findings||[];
+  add('Tong: '+F.filter(f=>f.severity==='high').length+' nguy hiem cao  |  '+F.filter(f=>f.severity==='medium').length+' dang ngo  |  '+F.filter(f=>f.severity==='safe').length+' dau hieu tot',11,false,[80,80,80]);
+  y+=3;
 
-      <div style="margin-top:28px;padding-top:16px;border-top:1px solid #e8e8e4;font-size:11px;color:#a1a1aa;text-align:center">
-        Báo cáo tạo tự động bởi Phishing Email Analyzer v2 — Nghiên cứu ATTT FPT Corporation
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(div);
-
-  try{
-    const btn=document.querySelector('.btn-action');
-    btn && (btn.textContent='⏳ Đang tạo PDF...');
-
-    const canvas=await html2canvas(div,{scale:2,useCORS:true,backgroundColor:'#ffffff'});
-    const imgData=canvas.toDataURL('image/png');
-    const {jsPDF}=window.jspdf;
-    const doc=new jsPDF({unit:'mm',format:'a4'});
-    const pageW=210, pageH=297;
-    const imgW=pageW;
-    const imgH=(canvas.height*imgW)/canvas.width;
-
-    let posY=0;
-    let remaining=imgH;
-    let first=true;
-    while(remaining>0){
-      if(!first) doc.addPage();
-      const sliceH=Math.min(pageH, remaining);
-      doc.addImage(imgData,'PNG',0,posY===0?0:-(pageH-sliceH+posY),imgW,imgH);
-      posY+=pageH;
-      remaining-=pageH;
-      first=false;
-    }
-    doc.save(`phishing-report-${Date.now()}.pdf`);
-    btn && (btn.textContent='📄 Export PDF');
-  }catch(e){
-    alert('Lỗi tạo PDF: '+e.message);
-  }finally{
-    document.body.removeChild(div);
+  if(F.length){
+    add('CHI TIET DAU HIEU',10,true,[100,100,100]);
+    const O={high:0,medium:1,low:2,safe:3};
+    [...F].sort((a,b)=>O[a.severity]-O[b.severity]).forEach(f=>{
+      add((SL[f.severity]||'')+ ' '+f.category,11,true,SC[f.severity]||[0,0,0]);
+      add(f.description,10,false,[70,70,70]);
+      if(f.detail) add(f.detail,9,false,[140,140,140]);
+      y+=1;
+    });
   }
+
+  y+=5;
+  add('Bao cao duoc tao tu dong boi Phishing Email Analyzer v2 — Nghien cuu ATTT FPT Corporation',9,false,[170,170,170]);
+  doc.save('phishing-report-'+Date.now()+'.pdf');
 }
 
 function copyResult(){
-  if(!last){alert('Chưa có kết quả!');return;}
-  const F=(last.findings||[]).map(f=>`[${f.severity.toUpperCase()}] ${f.category}: ${f.description}`).join('\n');
-  const t=`=== PHISHING ANALYZER REPORT ===\nTừ: ${last.from_header}\nTiêu đề: ${last.subject}\nĐiểm: ${last.score}/100 | ${last.verdict_label}\n\n${last.summary}\n\nCHI TIẾT:\n${F}`;
-  navigator.clipboard.writeText(t).then(()=>alert('Đã copy!')).catch(()=>alert('Copy thất bại!'));
+  if(!last){alert('Chua co ket qua!');return;}
+  const F=(last.findings||[]).map(f=>'['+f.severity.toUpperCase()+'] '+f.category+': '+f.description).join('\n');
+  const t='=== PHISHING ANALYZER REPORT ===\nTu: '+last.from_header+'\nTieu de: '+last.subject+'\nDiem: '+last.score+'/100\n\nTom tat:\n'+last.summary+'\n\nChi tiet:\n'+F;
+  navigator.clipboard.writeText(t).then(()=>alert('Da copy!')).catch(()=>alert('Copy that bai!'));
 }
 </script>
 </body>
 </html>
+ENDOFFILE
+echo "done"
